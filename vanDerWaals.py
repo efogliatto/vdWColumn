@@ -6,6 +6,8 @@ from scipy.optimize import fsolve
 
 from scipy.interpolate import interp1d
 
+from numpy.linalg import norm, solve
+
 
 
 # Reduced saturation pressure
@@ -82,3 +84,107 @@ def c_r( Tr ):
 
     
     return cl, cg
+
+
+
+
+# Reduced concentration profile
+
+def cprofile( ci, Tr = 0.99, Er_min = 0., Er_max = 1., de = 1e-3 ):
+
+    """
+    Reduced concentration profile
+
+    Arguments
+    ci: initial condition. Concentration at interphase
+    Er_min: interphase position
+    Er_max: integration limit
+    de: energy step (estimated)
+    """
+
+
+    # Initial conditions
+
+    nn = int(  np.floor( (Er_max - Er_min) / de ) + 2  )
+
+    C = ci * np.ones( nn )
+
+    Er = np.zeros( nn )
+
+
+
+   
+    # M construction
+
+    M = np.zeros( (nn, nn) )
+    
+    for i in range(nn):
+
+        if i == 0:
+
+            M[i][i]    =  1
+
+
+        elif i == (nn-1):
+
+            M[i][i]    =  3./2.
+
+            M[i][i-1] =  -4./2.
+
+            M[i][i-2] =   1./2.
+
+
+        else:
+
+            M[i][i+1]  =   1./2.
+
+            M[i][i-1]  =  -1./2.
+    
+
+
+
+
+
+
+    # Equation function
+
+    def fc( A, Tr, c ):
+    
+        CC = - A / ( (Tr / (1-A/3.)**2) - (9./4.) * A  )
+
+        CC[0] = c
+
+        return CC
+
+
+
+    # Solve equation
+
+    C_new = np.zeros( nn )
+    
+    b = de * fc( C, Tr, ci )
+    
+    
+    
+    while( np.fabs( norm( C_new - C ) )   > 1e-1 ):
+
+        C = C_new
+        
+        C_new = solve(M, b)
+
+        b = fc( C_new, Tr, ci ))
+
+        
+
+
+
+        
+    
+            
+
+
+    pass
+
+    
+
+    
