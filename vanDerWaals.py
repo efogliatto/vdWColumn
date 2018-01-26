@@ -53,7 +53,7 @@ def cequation( c, Tr ):
 
 # Reduced concentrations for specific reduced temperature
 
-def c_r( Tr ):
+def interphaseDensities( Tr ):
 
     """
     Reduced concentration, both phases.
@@ -65,11 +65,11 @@ def c_r( Tr ):
 
     # Initial conditions. Helps convergence
 
-    itr = np.array([0.99, 0.95, 0.90, 0.70, 0.60, 0.50, 0.45, 0.40])
+    itr = np.array([0.99, 0.95, 0.93, 0.90, 0.70, 0.60, 0.50, 0.45, 0.40])
 
-    icl = np.array([1.1, 1.3, 1.5, 1.9, 2.2, 2.4, 2.5, 2.7])
+    icl = np.array([1.1, 1.46, 1.54, 1.65, 1.9, 2.2, 2.4, 2.5, 2.7])
 
-    icg = np.array([0.8, 0.5, 0.3, 0.1, 0.05, 0.025, 0.0125, 1.5625e-03])
+    icg = np.array([0.8, 0.58, 0.51, 0.43, 0.1, 0.05, 0.025, 0.0125, 1.5625e-03])
 
     
 
@@ -172,7 +172,7 @@ def cprofile( ci, Tr = 0.99, Er_min = 0., Er_max = 1., de = 1e-3 ):
         
         C_new = solve(M, b)
 
-        b = fc( C_new, Tr, ci ))
+        b = fc( C_new, Tr, ci )
 
         
 
