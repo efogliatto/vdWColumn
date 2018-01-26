@@ -92,31 +92,58 @@ def interphaseDensities( Tr ):
 
 
 
-def vaporPhase(ci, Tr, Er_0, Er_max, de):
+def phaseProfile(ci, Ett, Ebb, de, Tt, Tb):
 
     """
-    Gas reduced density profile
+    Reduced density profile. Can be used for gas and liquid
 
     Arguments
-    ci: initial condition. Concentration at interphase
-    Tr: reduced temperature
-    Er_0: interphase position
-    Er_max: upper integration limit
+    ci: initial condition. Concentration at Er_min
+    Et: upper integration limit
+    Eb: lower integration limit
+    Tt: Temperature at Et
+    Tb: Temperature at Eb
     de: energy step (estimated)
+
+    Options
+    If used for liquid phase, only swap t and b
     """
+
+
+    Eb = Ebb
+
+    Et = Ett
+
+    if Eb > Et:
+
+        Eb = Ett
+
+        Et = Ebb
+
 
     
     # Initial conditions
 
-    nn = int(  np.floor( (Er_max - Er_0) / de ) + 2  )
+    nn = int(  np.floor( (Et - Eb) / de ) + 2  )
 
     C = ci * np.ones( nn )
 
-    Er = np.zeros( nn )
+    
+    Er = Eb * np.ones( nn )
 
-    Int = np.zeros( nn )
+    # if (Eb < Et):
 
-    dde = (Er_max - Er_0) / nn
+    #     Er = Eb * Er
+
+    # else:
+
+    #     Er = Et * Er
+        
+
+    dde = (Et - Eb) / nn
+
+    nablaTr = abs( (Tt - Tb) / (Et - Eb) )
+    
 
     
 
@@ -124,15 +151,21 @@ def vaporPhase(ci, Tr, Er_0, Er_max, de):
 
     for i in range(1,nn):
 
+
+        Tr = Tb + nablaTr * (Er[i-1] - Eb)
+        
         a = Tr / ((1.0 - C[i-1]/3.0)**2)
 
         b = 9.0 * C[i-1] / 4.0
-    
-        f = C[i-1] / ( a - b )
+
+        c = nablaTr * ( C[i-1] / (1 - C[i-1]/3.0) )
+
+        
+        f = ( C[i-1] + c )  /  ( a - b )
     
         C[i] = C[i-1] - dde * f
 
-        Er[i] = Er[i-1] + de
+        Er[i] = Er[i-1] + (Ett - Ebb) / nn
     
 
 
@@ -140,16 +173,17 @@ def vaporPhase(ci, Tr, Er_0, Er_max, de):
 
     # Integrate density profile
 
+    mass = 0
+
     for i in range(1,nn):
 
-        Int[i] = Int[i-1] + 0.5 * (C[i] + C[i-1]) * dde
+        mass = mass + 0.5 * (C[i] + C[i-1]) * dde
     
 
 
 
     
-    return Er, C, Int
-
+    return Er, C, mass
 
 
 
