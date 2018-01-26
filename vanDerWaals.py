@@ -116,7 +116,7 @@ def vaporPhaseProfile(ci, Et, Eb, de, Tt, Tb):
     
     Er = Eb * np.ones( nn )
 
-    dde = (Et - Eb) / nn
+    dde = (Et - Eb) / (nn - 1)
 
     nablaTr = (Tt - Tb) / (Et - Eb)
     
@@ -141,7 +141,7 @@ def vaporPhaseProfile(ci, Et, Eb, de, Tt, Tb):
     
         Cr[i] = Cr[i-1] - dde * f
 
-        Er[i] = Er[i-1] + (Et - Eb) / nn
+        Er[i] = Er[i-1] + dde
     
 
 
@@ -153,7 +153,7 @@ def vaporPhaseProfile(ci, Et, Eb, de, Tt, Tb):
 
     for i in range(1,nn):
 
-        mass = mass + 0.5 * (Cr[i] + Cr[i-1]) * dde
+        mass = mass + 0.5 * (Cr[i] + Cr[i-1])  * (Er[i] - Er[i-1])
     
 
 
@@ -193,7 +193,7 @@ def liquidPhaseProfile(ci, Et, Eb, de, Tt, Tb):
     
     Er = Et * np.ones( nn )
 
-    dde = (Et - Eb) / nn
+    dde = (Et - Eb) / (nn - 1)
 
     nablaTr = (Tt - Tb) / (Et - Eb)
     
@@ -219,6 +219,10 @@ def liquidPhaseProfile(ci, Et, Eb, de, Tt, Tb):
         Cr[i] = Cr[i+1] + dde * f
 
         Er[i] = Er[i+1] - dde
+
+        if(Er[i] < 0):
+
+            Er[i] = 0.
     
 
 
@@ -230,7 +234,7 @@ def liquidPhaseProfile(ci, Et, Eb, de, Tt, Tb):
 
     for i in range(1,nn):
 
-        mass = mass + 0.5 * (Cr[i] + Cr[i-1]) * dde
+        mass = mass + 0.5 * (Cr[i] + Cr[i-1]) * (Er[i] - Er[i-1])
     
 
 
@@ -252,33 +256,75 @@ def liquidPhaseProfile(ci, Et, Eb, de, Tt, Tb):
 
 # Reduced concentration profile
 
-def rhoUniformTr( ci, Tr = 0.99, Er_min = 0., Er_max = 1., de = 1e-3 ):
+def rhoUniformTr( Tr = 0.99, c_bar = 1.0, Eb = 0., Et = 1., de = 1e-3 ):
 
     """
     Reduced concentration profile
 
     Arguments
-    ci: initial condition. Concentration at interphase
-    Er_min: interphase position
-    Er_max: integration limit
+    Eb: lower integration limit
+    Et: upper integration limit
     de: energy step (estimated)
     """
 
 
-    # Initial conditions
+    # Interphase densities
 
-    nn = int(  np.floor( (Er_max - Er_min) / de ) + 2  )
-
-    C = ci * np.ones( nn )
-
-    Er = np.zeros( nn )
+    cl, cg = interphaseDensities( Tr )
 
 
+    # Initial mass excess
 
-   
+    mass = 1.
 
 
-    pass
+    # Initial positions
+
+    Ett = Et
+
+    Ebb = Eb
+
+    Ei = 0.5 * Et  +  0.5 * Eb
+
+
+    
+
+    # Repeat until mass convergence
+
+    while( abs(mass) > 1e-10 ):
+
+
+        Er_g, C_g, mass_g = vaporPhaseProfile(cg, Et, Ei, de, Tr, Tr)
+
+        Er_l, C_l, mass_l = liquidPhaseProfile(cl, Ei, Eb, de, Tr, Tr)
+
+
+        mass = mass_g  +  mass_l  -  c_bar * (Et - Eb)
+
+
+        # Too much liquid
+    
+        if ( mass > 0 ):
+
+            Ett = Ei
+
+            Ei = 0.5 * (Ei + Ebb)
+            
+
+
+        # Too much gas
+        
+        else:
+
+            Ebb = Ei
+
+            Ei = 0.5 * (Ett + Ei)            
+
+
+
+    
+
+    return Er_g, C_g, Er_l, C_l
 
     
 
