@@ -92,10 +92,10 @@ def interphaseDensities( Tr ):
 
 
 
-def phaseProfile(ci, Ett, Ebb, de, Tt, Tb):
+def vaporPhaseProfile(ci, Et, Eb, de, Tt, Tb):
 
     """
-    Reduced density profile. Can be used for gas and liquid
+    Reduced density profile
 
     Arguments
     ci: initial condition. Concentration at Er_min
@@ -104,21 +104,7 @@ def phaseProfile(ci, Ett, Ebb, de, Tt, Tb):
     Tt: Temperature at Et
     Tb: Temperature at Eb
     de: energy step (estimated)
-
-    Options
-    If used for liquid phase, only swap t and b
     """
-
-
-    Eb = Ebb
-
-    Et = Ett
-
-    if Eb > Et:
-
-        Eb = Ett
-
-        Et = Ebb
 
 
     
@@ -126,23 +112,13 @@ def phaseProfile(ci, Ett, Ebb, de, Tt, Tb):
 
     nn = int(  np.floor( (Et - Eb) / de ) + 2  )
 
-    C = ci * np.ones( nn )
-
+    Cr = ci * np.ones( nn )
     
     Er = Eb * np.ones( nn )
 
-    # if (Eb < Et):
-
-    #     Er = Eb * Er
-
-    # else:
-
-    #     Er = Et * Er
-        
-
     dde = (Et - Eb) / nn
 
-    nablaTr = abs( (Tt - Tb) / (Et - Eb) )
+    nablaTr = (Tt - Tb) / (Et - Eb)
     
 
     
@@ -154,18 +130,18 @@ def phaseProfile(ci, Ett, Ebb, de, Tt, Tb):
 
         Tr = Tb + nablaTr * (Er[i-1] - Eb)
         
-        a = Tr / ((1.0 - C[i-1]/3.0)**2)
+        a = Tr / ((1.0 - Cr[i-1]/3.0)**2)
 
-        b = 9.0 * C[i-1] / 4.0
+        b = 9.0 * Cr[i-1] / 4.0
 
-        c = nablaTr * ( C[i-1] / (1 - C[i-1]/3.0) )
+        c = nablaTr * ( Cr[i-1] / (1 - Cr[i-1]/3.0) )
 
         
-        f = ( C[i-1] + c )  /  ( a - b )
+        f = ( Cr[i-1] + c )  /  ( a - b )
     
-        C[i] = C[i-1] - dde * f
+        Cr[i] = Cr[i-1] - dde * f
 
-        Er[i] = Er[i-1] + (Ett - Ebb) / nn
+        Er[i] = Er[i-1] + (Et - Eb) / nn
     
 
 
@@ -177,13 +153,92 @@ def phaseProfile(ci, Ett, Ebb, de, Tt, Tb):
 
     for i in range(1,nn):
 
-        mass = mass + 0.5 * (C[i] + C[i-1]) * dde
+        mass = mass + 0.5 * (Cr[i] + Cr[i-1]) * dde
+    
+
+
+    
+    return Er, Cr, mass
+
+
+
+
+
+
+
+
+
+
+def liquidPhaseProfile(ci, Et, Eb, de, Tt, Tb):
+
+    """
+    Reduced density profile
+
+    Arguments
+    ci: initial condition. Concentration at Et
+    Et: upper integration limit
+    Eb: lower integration limit
+    Tt: Temperature at Et
+    Tb: Temperature at Eb
+    de: energy step (estimated)
+    """
+
+
+    
+    # Initial conditions
+
+    nn = int(  np.floor( (Et - Eb) / de ) + 2  )
+
+    Cr = ci * np.ones( nn )
+    
+    Er = Et * np.ones( nn )
+
+    dde = (Et - Eb) / nn
+
+    nablaTr = (Tt - Tb) / (Et - Eb)
+    
+    
+    
+
+    # Integrate differential equation
+
+    for i in range(nn-2,-1,-1):
+
+
+        Tr = Tb + nablaTr * (Er[i+1] - Eb)
+        
+        a = Tr / ((1.0 - Cr[i+1]/3.0)**2)
+
+        b = 9.0 * Cr[i+1] / 4.0
+
+        c = nablaTr * ( Cr[i+1] / (1 - Cr[i+1]/3.0) )
+
+        
+        f = ( Cr[i+1] + c )  /  ( a - b )
+    
+        Cr[i] = Cr[i+1] + dde * f
+
+        Er[i] = Er[i+1] - dde
     
 
 
 
+
+    # Integrate density profile
+
+    mass = 0
+
+    for i in range(1,nn):
+
+        mass = mass + 0.5 * (Cr[i] + Cr[i-1]) * dde
     
-    return Er, C, mass
+
+
+    
+    return Er, Cr, mass
+
+
+
 
 
 
