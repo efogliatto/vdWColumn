@@ -88,9 +88,82 @@ def interphaseDensities( Tr ):
 
 
 
+
+
+
+
+def vaporPhase(ci, Tr, Er_0, Er_max, de):
+
+    """
+    Gas reduced density profile
+
+    Arguments
+    ci: initial condition. Concentration at interphase
+    Tr: reduced temperature
+    Er_0: interphase position
+    Er_max: upper integration limit
+    de: energy step (estimated)
+    """
+
+    
+    # Initial conditions
+
+    nn = int(  np.floor( (Er_max - Er_0) / de ) + 2  )
+
+    C = ci * np.ones( nn )
+
+    Er = np.zeros( nn )
+
+    Int = np.zeros( nn )
+
+    dde = (Er_max - Er_0) / nn
+
+    
+
+    # Integrate differential equation
+
+    for i in range(1,nn):
+
+        a = Tr / ((1.0 - C[i-1]/3.0)**2)
+
+        b = 9.0 * C[i-1] / 4.0
+    
+        f = C[i-1] / ( a - b )
+    
+        C[i] = C[i-1] - dde * f
+
+        Er[i] = Er[i-1] + de
+    
+
+
+
+
+    # Integrate density profile
+
+    for i in range(1,nn):
+
+        Int[i] = Int[i-1] + 0.5 * (C[i] + C[i-1]) * dde
+    
+
+
+
+    
+    return Er, C, Int
+
+
+
+
+
+
+
+
+    
+
+
+
 # Reduced concentration profile
 
-def cprofile( ci, Tr = 0.99, Er_min = 0., Er_max = 1., de = 1e-3 ):
+def rhoUniformTr( ci, Tr = 0.99, Er_min = 0., Er_max = 1., de = 1e-3 ):
 
     """
     Reduced concentration profile
@@ -114,73 +187,6 @@ def cprofile( ci, Tr = 0.99, Er_min = 0., Er_max = 1., de = 1e-3 ):
 
 
    
-    # M construction
-
-    M = np.zeros( (nn, nn) )
-    
-    for i in range(nn):
-
-        if i == 0:
-
-            M[i][i]    =  1
-
-
-        elif i == (nn-1):
-
-            M[i][i]    =  3./2.
-
-            M[i][i-1] =  -4./2.
-
-            M[i][i-2] =   1./2.
-
-
-        else:
-
-            M[i][i+1]  =   1./2.
-
-            M[i][i-1]  =  -1./2.
-    
-
-
-
-
-
-
-    # Equation function
-
-    def fc( A, Tr, c ):
-    
-        CC = - A / ( (Tr / (1-A/3.)**2) - (9./4.) * A  )
-
-        CC[0] = c
-
-        return CC
-
-
-
-    # Solve equation
-
-    C_new = np.zeros( nn )
-    
-    b = de * fc( C, Tr, ci )
-    
-    
-    
-    while( np.fabs( norm( C_new - C ) )   > 1e-1 ):
-
-        C = C_new
-        
-        C_new = solve(M, b)
-
-        b = fc( C_new, Tr, ci )
-
-        
-
-
-
-        
-    
-            
 
 
     pass
