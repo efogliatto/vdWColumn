@@ -31,9 +31,9 @@ def rhoFixedGradTr( Tt = 0.99, Tb = 0.99, c_bar = 1.0, Eb = 0., Et = 1., de = 1e
     """
 
 
-    # Interphase densities
+    # # Interphase densities
 
-    cl, cg = interphaseDensities( 0.5*Tt  +  0.5*Tb )
+    # cl, cg = interphaseDensities( 0.5*Tt  +  0.5*Tb )
 
 
     # Initial mass excess
@@ -59,6 +59,12 @@ def rhoFixedGradTr( Tt = 0.99, Tb = 0.99, c_bar = 1.0, Eb = 0., Et = 1., de = 1e
     while( abs(mass) > 1e-10 ):
 
 
+        # Interphase densities
+
+        cl, cg = interphaseDensities( Tb + nablaTr * Ei )
+        
+
+        
         Er_g, C_g, mass_g = vaporPhaseProfile(cg, Et, Ei, de, Tt, Tb + nablaTr*(Ei-Eb))
 
         Er_l, C_l, mass_l = liquidPhaseProfile(cl, Ei, Eb, de, Tb + nablaTr*(Ei-Eb), Tb)
