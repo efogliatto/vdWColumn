@@ -60,7 +60,7 @@ def vaporPhaseProfileWithT(ci, Er, Tr, idx):
 
     for i in range(idx + 1, len(Er)):
 
-        mass = mass + 0.5 * (Cr[i] + Cr[i-1])  * (Er[i] - Er[i-1])
+        mass = mass + 0.5 * (Cr[i] + Cr[i-1])  * dde
     
 
 

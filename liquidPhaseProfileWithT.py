@@ -57,9 +57,9 @@ def liquidPhaseProfileWithT(ci, Er, Tr, idx):
 
     mass = 0
 
-    for i in range(idx-1,-1,-1):
+    for i in range(idx):
         
-        mass = mass + 0.5 * (Cr[i] + Cr[i-1]) * (Er[i] - Er[i-1])
+        mass = mass + 0.5 * (Cr[i] + Cr[i-1]) * dde
     
 
 

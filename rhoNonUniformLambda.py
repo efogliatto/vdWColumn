@@ -19,7 +19,7 @@ from liquidPhaseProfileWithT import liquidPhaseProfileWithT
 
 # Reduced concentration profile. Fixed Gradient
 
-def rhoNonUniformLambda( Tt = 0.99, Tb = 0.99, c_bar = 1.0, Eb = 0., Et = 1e-03, npoints = 10 ):
+def rhoNonUniformLambda( Tt = 0.99, Tb = 0.99, c_bar = 1.0, Eb = 0., Et = 1e-03, npoints = 10000 ):
 
     """
     Reduced concentration profile
@@ -60,16 +60,14 @@ def rhoNonUniformLambda( Tt = 0.99, Tb = 0.99, c_bar = 1.0, Eb = 0., Et = 1e-03,
 
     # Repeat until mass convergence
 
-    for k in range(1):
+    # for k in range(1):
     
-    # while( abs(mass) > 1e-10 ):
+    while( abs(mass) > ((Et-Eb)/npoints) ):
 
 
         # Interphase densities
 
         cl, cg = interphaseDensities( Tr[Ei] )
-        print(cl)
-        print(cg)
         
         
         # Liquid an vapor profiles
@@ -84,7 +82,7 @@ def rhoNonUniformLambda( Tt = 0.99, Tb = 0.99, c_bar = 1.0, Eb = 0., Et = 1e-03,
         
         mass = mass_g  +  mass_l  -  c_bar * (Et - Eb)
 
-        # print(mass)
+        
 
         # Too much liquid
     
@@ -107,13 +105,6 @@ def rhoNonUniformLambda( Tt = 0.99, Tb = 0.99, c_bar = 1.0, Eb = 0., Et = 1e-03,
 
 
 
-        # # New interphase temperature
-
-        # hl = Ei - Eb
-
-        # hg = Et - Ei
-        
-        # Ti = ( Tb / hl  +  gamma * Tt / hg)  *  ( hg * hl / ( gamma * hl + hg ) )
             
 
     
