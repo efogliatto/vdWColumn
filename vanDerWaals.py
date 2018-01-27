@@ -412,7 +412,7 @@ def rhofixedGradTr( Tt = 0.99, Tb = 0.99, c_bar = 1.0, Eb = 0., Et = 1., de = 1e
 
 # Reduced concentration profile. Fixed Gradient
 
-def rhofixedTr( Tt = 0.99, Tb = 0.99, gamma = 1.0, c_bar = 1.0, Eb = 0., Et = 1., de = 1e-3 ):
+def rhoFixedTr( Tt = 0.99, Tb = 0.99, gamma = 1.0, c_bar = 1.0, Eb = 0., Et = 1., de = 1e-3 ):
 
     """
     Reduced concentration profile
@@ -442,9 +442,11 @@ def rhofixedTr( Tt = 0.99, Tb = 0.99, gamma = 1.0, c_bar = 1.0, Eb = 0., Et = 1.
 
     Ei = 0.5 * Et  +  0.5 * Eb
 
+    Ti = 0.5 * (Tt + Tb)
 
 
     nablaTr = (Tt - Tb) / (Et - Eb)
+
     
 
     # Repeat until mass convergence
@@ -452,11 +454,16 @@ def rhofixedTr( Tt = 0.99, Tb = 0.99, gamma = 1.0, c_bar = 1.0, Eb = 0., Et = 1.
     while( abs(mass) > 1e-10 ):
 
 
-        Er_g, C_g, mass_g = vaporPhaseProfile(cg, Et, Ei, de, Tt, Tb + nablaTr*(Ei-Eb))
+        # Liquid an vapor profiles
 
-        Er_l, C_l, mass_l = liquidPhaseProfile(cl, Ei, Eb, de, Tb + nablaTr*(Ei-Eb), Tb)
+        Er_g, C_g, mass_g = vaporPhaseProfile(cg, Et, Ei, de, Tt, Ti)
 
+        Er_l, C_l, mass_l = liquidPhaseProfile(cl, Ei, Eb, de, Ti, Tb)
 
+        
+        
+        # Mass excess
+        
         mass = mass_g  +  mass_l  -  c_bar * (Et - Eb)
 
 
@@ -479,6 +486,16 @@ def rhofixedTr( Tt = 0.99, Tb = 0.99, gamma = 1.0, c_bar = 1.0, Eb = 0., Et = 1.
             Ei = 0.5 * (Ett + Ei)            
 
 
+
+
+        # New interphase temperature
+
+        hl = Ei - Eb
+
+        hg = Et - Ei
+        
+        Ti = ( Tb / hl  +  gamma * Tt / hg)  *  ( hg * hl / ( gamma * hl + hg ) )
+            
 
     
 
