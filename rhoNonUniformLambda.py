@@ -19,7 +19,7 @@ from .liquidPhaseProfileWithT import liquidPhaseProfileWithT
 
 
 
-def updateTemperature(Er, Tr, Cl, Cg, idx, kappa = 1.0, thcond = 'uniform'):
+def updateTemperature(Er, Tr, Cl, Cg, idx, kappa = 1.0, thcond = 'uniform', ttol = 1e-3):
 
     """
     Update Temperature distribution
@@ -39,7 +39,11 @@ def updateTemperature(Er, Tr, Cl, Cg, idx, kappa = 1.0, thcond = 'uniform'):
         l = kappa
 
         
-        if thcond != 'uniform':
+        if thcond == 'uniform':
+
+            l = kappa
+
+        elif thcond == 'linear':
 
             l = kappa * rho
 
@@ -83,7 +87,7 @@ def updateTemperature(Er, Tr, Cl, Cg, idx, kappa = 1.0, thcond = 'uniform'):
     err = 1.
 
 
-    while( err > 1e-8 ):
+    while( err > ttol ):
     # for k in range(10):
 
 
@@ -193,14 +197,21 @@ def updateTemperature(Er, Tr, Cl, Cg, idx, kappa = 1.0, thcond = 'uniform'):
 
             
 
+
+        # Compute error
             
-        err = np.linalg.norm(Tr - Told)
+        # err = np.linalg.norm(Tr - Told)
+
+        err = np.linalg.norm(Tr - Told) / np.linalg.norm(Tr)
+
+        
 
         for i in range(len(Tr)):
 
             Told[i] = Tr[i]
             
 
+        # print(err)
     
 
     return Told
@@ -224,7 +235,8 @@ def rhoNonUniformLambda( Tt = 0.99,
                          npoints = 10000,
                          kappa = 1.0,
                          updateT = False,
-                         thcond = 'uniform'):
+                         thcond = 'uniform',
+                         ttol = 1e-3):
 
     """
     Reduced concentration profile
@@ -310,15 +322,16 @@ def rhoNonUniformLambda( Tt = 0.99,
 
 
             
-    # Update temperature distribution
+        # Update temperature distribution
 
-    if updateT == True:
+        if updateT == True:
     
-        Tr = updateTemperature(Er, Tr, C_l, C_g, Ei, 1.0, thcond)
+            Tr = updateTemperature(Er, Tr, C_l, C_g, Ei, kappa, thcond, ttol)
 
-        
 
-    return Er, C_g, C_l, Ei
+            
+
+    return Er, C_g, C_l, Ei, Tr
 
 
 
