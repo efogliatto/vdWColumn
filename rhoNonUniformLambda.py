@@ -19,7 +19,7 @@ from .liquidPhaseProfileWithT import liquidPhaseProfileWithT
 
 
 
-def updateTemperature(Er, Tr, Cl, Cg, idx, kappa = 1.0):
+def updateTemperature(Er, Tr, Cl, Cg, idx, kappa = 1.0, thcond = 'uniform'):
 
     """
     Update Temperature distribution
@@ -32,37 +32,49 @@ def updateTemperature(Er, Tr, Cl, Cg, idx, kappa = 1.0):
     """
 
 
-    def lambdaRho(rho,kappa):
+    # Thermal conductivity
+    
+    def lambdaRho( rho, kappa, thcond = 'uniform' ):
 
-        return kappa * rho
+        l = kappa
 
         
+        if thcond != 'uniform':
+
+            l = kappa * rho
+
+            
+        return l
+
+
+
+
+    # Reduced energy step
 
     dde = Er[1] - Er[0]
 
     
     
     # Liquid phase matrix
-
-    r = lambdaRho( Cg[idx], kappa ) * (Tr[idx+1] - Tr[idx]) / dde
+    
+    r = lambdaRho( Cg[idx], kappa, thcond ) * (Tr[idx+1] - Tr[idx]) / dde
     
     Ml = np.zeros( (idx+1, idx+1) )
 
-    Bl = r * np.ones(idx+1)
+    Bl = np.ones(idx+1)
     
 
 
 
     # vapor phase matrix
 
-    r = lambdaRho( Cl[idx], kappa ) * (Tr[idx] - Tr[idx-1]) / dde    
+    r = lambdaRho( Cl[idx], kappa, thcond ) * (Tr[idx] - Tr[idx-1]) / dde    
 
     Mg = np.zeros( (len(Er)-idx, len(Er)-idx) )
 
-    Bg = r * np.ones( len(Er)-idx )
+    Bg = np.ones( len(Er)-idx )
 
-    
-    beta = 1 / (lambdaRho(Cl[idx],kappa) - lambdaRho(Cg[idx],kappa) )
+       
 
 
 
@@ -71,20 +83,33 @@ def updateTemperature(Er, Tr, Cl, Cg, idx, kappa = 1.0):
     err = 1.
 
 
-    # while( np.linalg.norm(Tr - Told) > 1e-3 ):
-    for k in range(10):
+    while( err > 1e-8 ):
+    # for k in range(10):
 
+
+        beta = 1 / (lambdaRho(Cl[idx], kappa, thcond) + lambdaRho(Cg[idx], kappa, thcond) )
         
+
         # Liquid
+        
+        
+        # Flux
+        
+        r = lambdaRho( Cg[idx], kappa, thcond ) * (Tr[idx+1] - Tr[idx]) / dde
+        
+        Bl.fill( r )
+        
+        
+        # Matrix
         
         for i in range(idx+1):
 
         
             if i == 0:
 
-                Ml[i,i] = -lambdaRho( Cl[i], kappa ) / dde
+                Ml[i,i] = -lambdaRho( Cl[i], kappa, thcond ) / dde
 
-                Ml[i,1] = lambdaRho( Cl[i], kappa ) / dde
+                Ml[i,1] = lambdaRho( Cl[i], kappa, thcond ) / dde
 
 
 
@@ -92,17 +117,17 @@ def updateTemperature(Er, Tr, Cl, Cg, idx, kappa = 1.0):
 
                 Ml[i,i] = 1.
 
-                Ml[i,i-1] = -beta * lambdaRho(Cl[i],kappa)
+                Ml[i,i-1] = -beta * lambdaRho(Cl[i], kappa, thcond)
 
-                Bl[i] = beta * lambdaRho(Cg[i],kappa) * Tr[idx+1]
+                Bl[i] = beta * lambdaRho(Cg[i], kappa, thcond) * Tr[idx+1]
 
 
 
             else:
 
-                Ml[i,i+1] = lambdaRho( Cl[i], kappa ) / (2*dde)
+                Ml[i,i+1] = lambdaRho( Cl[i], kappa, thcond ) / (2*dde)
 
-                Ml[i,i-1] = -lambdaRho( Cl[i], kappa ) / (2*dde)
+                Ml[i,i-1] = -lambdaRho( Cl[i], kappa, thcond ) / (2*dde)
 
 
 
@@ -118,7 +143,17 @@ def updateTemperature(Er, Tr, Cl, Cg, idx, kappa = 1.0):
 
 
         # Vapor
-            
+
+
+        # Flux
+
+        r = lambdaRho( Cl[idx], kappa, thcond ) * (Tr[idx] - Tr[idx-1]) / dde    
+
+        Bg.fill(r)
+
+
+        
+        # Matrix
 
         for i in range( len(Er)-idx ):
 
@@ -127,25 +162,25 @@ def updateTemperature(Er, Tr, Cl, Cg, idx, kappa = 1.0):
 
                 Mg[i,i] = 1.
 
-                Mg[i,i+1] = -beta * lambdaRho(Cg[i+idx],kappa)
+                Mg[i,i+1] = -beta * lambdaRho(Cg[i+idx], kappa, thcond)
 
-                Bg[i] = beta * lambdaRho(Cl[i+idx],kappa) * Tr[idx-1]
+                Bg[i] = beta * lambdaRho(Cl[i+idx], kappa, thcond) * Tr[idx-1]
             
 
             
             elif i == len(Er) - idx -1:
 
-                Mg[i,i] = lambdaRho( Cg[i+idx], kappa ) / dde
+                Mg[i,i] = lambdaRho( Cg[i+idx], kappa, thcond ) / dde
 
-                Mg[i,i-1] = -lambdaRho( Cg[i+idx], kappa ) / dde
+                Mg[i,i-1] = -lambdaRho( Cg[i+idx], kappa, thcond ) / dde
 
 
 
             else:
 
-                Mg[i,i+1] = lambdaRho( Cg[i+idx], kappa ) / (2*dde)
+                Mg[i,i+1] = lambdaRho( Cg[i+idx], kappa, thcond ) / (2*dde)
 
-                Mg[i,i-1] = -lambdaRho( Cg[i+idx], kappa ) / (2*dde)
+                Mg[i,i-1] = -lambdaRho( Cg[i+idx], kappa, thcond ) / (2*dde)
             
 
 
@@ -164,9 +199,7 @@ def updateTemperature(Er, Tr, Cl, Cg, idx, kappa = 1.0):
         for i in range(len(Tr)):
 
             Told[i] = Tr[i]
-
             
-        print(err)
 
     
 
@@ -183,7 +216,15 @@ def updateTemperature(Er, Tr, Cl, Cg, idx, kappa = 1.0):
 
 # Reduced concentration profile. Fixed Gradient
 
-def rhoNonUniformLambda( Tt = 0.99, Tb = 0.99, c_bar = 1.0, Eb = 0., Et = 1e-03, npoints = 10000, kappa = 1.0 ):
+def rhoNonUniformLambda( Tt = 0.99,
+                         Tb = 0.99,
+                         c_bar = 1.0,
+                         Eb = 0.,
+                         Et = 1e-03,
+                         npoints = 10000,
+                         kappa = 1.0,
+                         updateT = False,
+                         thcond = 'uniform'):
 
     """
     Reduced concentration profile
@@ -271,9 +312,11 @@ def rhoNonUniformLambda( Tt = 0.99, Tb = 0.99, c_bar = 1.0, Eb = 0., Et = 1e-03,
             
     # Update temperature distribution
 
-    updateTemperature(Er, Tr, C_l, C_g, Ei)        
-
+    if updateT == True:
     
+        updateTemperature(Er, Tr, C_l, C_g, Ei, 1.0, thcond)
+
+        
 
     return Er, C_g, C_l, Ei
 
