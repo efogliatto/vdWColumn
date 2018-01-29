@@ -203,7 +203,7 @@ def updateTemperature(Er, Tr, Cl, Cg, idx, kappa = 1.0, thcond = 'uniform'):
 
     
 
-    pass
+    return Told
     
 
 
@@ -314,7 +314,7 @@ def rhoNonUniformLambda( Tt = 0.99,
 
     if updateT == True:
     
-        updateTemperature(Er, Tr, C_l, C_g, Ei, 1.0, thcond)
+        Tr = updateTemperature(Er, Tr, C_l, C_g, Ei, 1.0, thcond)
 
         
 
