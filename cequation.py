@@ -8,7 +8,7 @@ from scipy.interpolate import interp1d
 
 from numpy.linalg import norm, solve
 
-from P_sat_r import P_sat_r
+from .P_sat_r import P_sat_r
 
 
 

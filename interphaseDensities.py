@@ -8,7 +8,7 @@ from scipy.interpolate import interp1d
 
 from numpy.linalg import norm, solve
 
-from cequation import cequation
+from .cequation import cequation
 
 
 # Reduced concentrations for specific reduced temperature

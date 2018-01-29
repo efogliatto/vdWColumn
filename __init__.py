@@ -1,21 +1,21 @@
-from P_sat_r import P_sat_r
+from .P_sat_r import P_sat_r
 
-from cequation import cequation
+from .cequation import cequation
 
-from interphaseDensities import interphaseDensities
+from .interphaseDensities import interphaseDensities
 
-from vaporPhaseProfile import vaporPhaseProfile
+from .vaporPhaseProfile import vaporPhaseProfile
 
-from liquidPhaseProfile import liquidPhaseProfile
+from .liquidPhaseProfile import liquidPhaseProfile
 
-from vaporPhaseProfileWithT import vaporPhaseProfileWithT
+from .vaporPhaseProfileWithT import vaporPhaseProfileWithT
 
-from liquidPhaseProfileWithT import liquidPhaseProfileWithT
+from .liquidPhaseProfileWithT import liquidPhaseProfileWithT
 
-from rhoUniformTr import rhoUniformTr
+from .rhoUniformTr import rhoUniformTr
 
-from rhoFixedGradTr import rhoFixedGradTr
+from .rhoFixedGradTr import rhoFixedGradTr
 
-from rhoFixedTr import rhoFixedTr
+from .rhoFixedTr import rhoFixedTr
 
-from rhoNonUniformLambda import rhoNonUniformLambda
+from .rhoNonUniformLambda import rhoNonUniformLambda

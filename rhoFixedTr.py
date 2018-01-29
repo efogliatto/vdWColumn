@@ -8,11 +8,11 @@ from scipy.interpolate import interp1d
 
 from numpy.linalg import norm, solve
 
-from interphaseDensities import interphaseDensities
+from .interphaseDensities import interphaseDensities
 
-from vaporPhaseProfile import vaporPhaseProfile
+from .vaporPhaseProfile import vaporPhaseProfile
 
-from liquidPhaseProfile import liquidPhaseProfile
+from .liquidPhaseProfile import liquidPhaseProfile
 
 
  
