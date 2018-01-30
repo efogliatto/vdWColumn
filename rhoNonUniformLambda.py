@@ -124,4 +124,8 @@ def rhoNonUniformLambda( Tt = 0.99,
 
 
 
+        # print("{}   {}".format(Ei, Tr.shape))
+
+
+
     return Er, C_g, C_l, Ei, Tr
