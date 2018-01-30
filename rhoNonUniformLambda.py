@@ -120,9 +120,8 @@ def rhoNonUniformLambda( Tt = 0.99,
 
         if updateT == True:
     
-            Tr = updateTemperature(Er, Tr, C_l, C_g, Ei, Tt, Tb, kappa, thcond, ttol)
+            Tr = updateTemperature(Er, C_l, C_g, Ei, Tt, Tb, kappa, thcond)
 
 
-        print(Ei)    
 
     return Er, C_g, C_l, Ei, Tr
