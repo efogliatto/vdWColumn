@@ -54,6 +54,10 @@ def rhoNonUniformLambda( Tt = 0.99,
 
     Tr = np.linspace(Tb, Tt, npoints)
 
+    Tnew = np.linspace(Tb, Tt, npoints)
+
+    Terr = 1.
+
 
     
     # Initial positions (as index)
@@ -76,16 +80,45 @@ def rhoNonUniformLambda( Tt = 0.99,
     while( abs(mass) > ((Et-Eb)/npoints) ):
 
 
-        # Interphase densities
-
-        cl, cg = interphaseDensities( Tr[Ei] )
+        Terr = 1.0
         
+
+        # First, iterate over c and T distributions
+
+        while( Terr > 1e-3 ) :
+
+            
+            # Interphase densities
+
+            cl, cg = interphaseDensities( Tr[Ei] )
+
+            
         
-        # Liquid an vapor profiles
+            # Liquid an vapor profiles
 
-        C_g, mass_g = vaporPhaseProfileWithT(cg, Er, Tr, Ei)
+            C_g, mass_g = vaporPhaseProfileWithT(cg, Er, Tr, Ei)
 
-        C_l, mass_l = liquidPhaseProfileWithT(cl, Er, Tr, Ei)
+            C_l, mass_l = liquidPhaseProfileWithT(cl, Er, Tr, Ei)
+
+            
+
+            # Update temperature distribution
+
+            if updateT == True:
+    
+                Tnew = updateTemperature(Er, C_l, C_g, Ei, Tt, Tb, kappa, thcond)            
+
+                Terr = np.linalg.norm(Tnew - Tr)
+            
+                np.copyto(Tr, Tnew)
+
+            else:
+
+                Terr = 0.
+
+
+
+
 
         
         
@@ -113,16 +146,6 @@ def rhoNonUniformLambda( Tt = 0.99,
 
             Ei = int( 0.5 * (Ett + Ei) )
 
-
-
-            
-        # Update temperature distribution
-
-        if updateT == True:
-    
-            Tnew = updateTemperature(Er, C_l, C_g, Ei, Tt, Tb, kappa, thcond)            
-
-            np.copyto(Tr, Tnew)
 
 
 
