@@ -110,7 +110,10 @@ def rhoNonUniformLambda( Tt = 0.99,
 
                 Terr = np.linalg.norm(Tnew - Tr)
             
-                np.copyto(Tr, Tnew)
+
+                for i in range(npoints):
+
+                    Tr[i] = Tnew[i]
 
             else:
 

@@ -2,6 +2,8 @@ import numpy as np
 
 from numpy.linalg import norm, solve
 
+from scipy.linalg import solve_banded
+
 
 
 
@@ -163,6 +165,10 @@ def updateTemperature(Er,
     # Solucion del sistema    
 
     Tr = solve(A,B)
+
+    # print(A.shape)
+    
+    # Tr = solve_banded((3,3),A,B)
 
 
                 
