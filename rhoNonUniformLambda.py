@@ -30,7 +30,7 @@ def rhoNonUniformLambda( Tt = 0.99,
                          kappa = 1.0,
                          updateT = False,
                          thcond = 'uniform',
-                         ttol = 1e-3):
+                         ttol = 1e-8):
 
     """
     Reduced concentration profile
@@ -85,7 +85,7 @@ def rhoNonUniformLambda( Tt = 0.99,
 
         # First, iterate over c and T distributions
 
-        while( Terr > 1e-3 ) :
+        while( Terr > ttol ) :
 
             
             # Interphase densities
