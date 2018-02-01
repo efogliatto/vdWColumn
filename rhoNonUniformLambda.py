@@ -106,7 +106,7 @@ def rhoNonUniformLambda( Tt = 0.99,
 
             if updateT == True:
     
-                Tnew = updateTemperature(Er, C_l, C_g, Ei, Tt, Tb, kappa, thcond)            
+                Tnew = updateTemperature(Er, C_l, C_g, Ei, Tt, Tb, kappa, thcond)
 
                 Terr = np.linalg.norm(Tnew - Tr)
             

@@ -4,6 +4,8 @@ from numpy.linalg import norm, solve
 
 from scipy.linalg import solve_banded
 
+import matplotlib.pyplot as plt
+
 
 
 
@@ -88,11 +90,11 @@ def updateTemperature(Er,
 
             # Thermal conductivities
         
-            lm = 1.
+            lm = kappa
 
-            li = 1.
+            li = kappa
 
-            lp = 1.
+            lp = kappa
 
 
             if i < idx:
@@ -119,57 +121,48 @@ def updateTemperature(Er,
 
                 lp = lambdaRho( Cg[i+1], kappa, thcond )
 
+
                 
+            # First/second order coefficients
 
+            A[i,i-1] = lm
+            
+            A[i,i] = -lm - lp
+            
+            A[i,i+1] = lp
+        
 
-
-            # Second node
-
-            if i == 1:
-
-                A[i,i-1] = 3.*lm
-
-                A[i,i]   = -4.*lm - lp
-
-                A[i,i+1] = lm
-
-                A[i,i+2] = lp
             
 
-            # Last node
+    # # Solucion del sistema    
 
-            elif i == nn-2:
-
-                A[i,i-2] = lm
-                
-                A[i,i-1] = -3.*lp
-
-                A[i,i]   = 4.*lp - lm
-
-                A[i,i+1] = -lp
-
-
-            # Inner nodes
-
-            else:
-
-                A[i,i-2] = lm
-                                                    
-                A[i,i]   = -lm - lp                
-
-                A[i,i+2] = lp
+    # Tr = solve(A,B)
 
 
 
+    # Solucion usando banded
 
-    # Solucion del sistema    
+    ab = np.zeros((3,nn))
 
-    Tr = solve(A,B)
+    for j in range(1,nn):    
 
-    # print(A.shape)
+        ab[0,j] = A[j-1,j]
+
+        
+    for j in range(nn):    
+
+        ab[1,j] = A[j,j]
+
+
+    for j in range(0,nn-1):    
+
+        ab[2,j] = A[j+1,j]
+
+
+
+    Tr = solve_banded((1,1),ab,B)
+
+
     
-    # Tr = solve_banded((3,3),A,B)
-
-
                 
     return Tr
