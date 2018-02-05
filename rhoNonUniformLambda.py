@@ -68,17 +68,19 @@ def rhoNonUniformLambda( Tt = 0.99,
 
     Ei = int( npoints/2 )
 
+    Ei_old = 0
+
 
 
 
     
 
     # Repeat until mass convergence
-
-    # for k in range(1):
     
-    while( abs(mass) > ((Et-Eb)/npoints) ):
+    # while( abs(mass) > ((Et-Eb)/npoints) ):
+    while(Ei != Ei_old):
 
+        Ei_old = Ei
 
         Terr = 1.0
         
@@ -148,7 +150,6 @@ def rhoNonUniformLambda( Tt = 0.99,
             Ebb = Ei
 
             Ei = int( 0.5 * (Ett + Ei) )
-
 
 
 
