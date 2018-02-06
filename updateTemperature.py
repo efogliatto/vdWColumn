@@ -92,8 +92,6 @@ def updateTemperature(Er,
         
             lm = kappa
 
-            li = kappa
-
             lp = kappa
 
 
@@ -101,15 +99,11 @@ def updateTemperature(Er,
 
                 lm = lambdaRho( Cl[i-1], kappa, thcond )
 
-                li = lambdaRho( Cl[i], kappa, thcond )
-
                 lp = lambdaRho( Cl[i+1], kappa, thcond )
 
             elif i == idx:
             
                 lm = lambdaRho( Cl[i-1], kappa, thcond )
-
-                li = lambdaRho( 0.5*Cl[i] + 0.5*Cg[i], kappa, thcond )
 
                 lp = lambdaRho( Cg[i+1], kappa, thcond )
 
@@ -117,9 +111,8 @@ def updateTemperature(Er,
 
                 lm = lambdaRho( Cg[i-1], kappa, thcond )
 
-                li = lambdaRho( Cg[i], kappa, thcond )
-
                 lp = lambdaRho( Cg[i+1], kappa, thcond )
+
 
 
                 
@@ -130,8 +123,10 @@ def updateTemperature(Er,
             A[i,i] = -lm - lp
             
             A[i,i+1] = lp
-        
 
+
+    # np.set_printoptions(precision=2)
+    # print(A)
             
 
     # # Solucion del sistema    
