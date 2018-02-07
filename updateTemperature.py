@@ -74,6 +74,9 @@ def updateTemperature(Er,
     
 
     
+    # Coefficients according to Patankar suggestion
+    
+    
     for i in range(nn):
 
 
@@ -88,68 +91,71 @@ def updateTemperature(Er,
 
         # Liquid bulk
 
-        if (i > 0) and (i < idx):
+        elif (i > 0) and (i < idx):
 
-            lm = lambdaRho( Cl[i-1], kappa, thcond )
+            ke = 0.5*lambdaRho( Cl[i+1], kappa, thcond ) + 0.5*lambdaRho( Cl[i], kappa, thcond )
 
-            lp = lambdaRho( Cl[i+1], kappa, thcond )
+            kw = 0.5*lambdaRho( Cl[i], kappa, thcond ) + 0.5*lambdaRho( Cl[i-1], kappa, thcond )
+            
 
         
             # First/second order coefficients
 
-            A[i,i-1] = lm
+            A[i,i-1] = -kw
             
-            A[i,i] = -lm - lp
+            A[i,i] = ke + kw
             
-            A[i,i+1] = lp
+            A[i,i+1] = -ke
 
 
 
         # Interphase
             
-        if i == idx:
+        elif i == idx:
 
 
-            lm = lambdaRho( Cl[i], kappa, thcond )
+            kw = lambdaRho( Cl[i-1], kappa, thcond )
 
-            lp = lambdaRho( Cg[i], kappa, thcond )
+            ke = lambdaRho( Cg[i+1], kappa, thcond )
             
         
             # First/second order coefficients
 
-            A[i,i-1] = lm
+            A[i,i-1] = -kw
             
-            A[i,i] = -lm - lp
+            A[i,i] = ke + kw
             
-            A[i,i+1] = lp
+            A[i,i+1] = -ke
 
 
 
 
         # Gas bulk
 
-        if (i > idx)  and  (i < nn-1):
+        elif (i > idx)  and  (i < nn-1):
 
             
-            lm = lambdaRho( Cg[i-1], kappa, thcond )
+            ke = 0.5*lambdaRho( Cg[i+1], kappa, thcond ) + 0.5*lambdaRho( Cg[i], kappa, thcond )
 
-            lp = lambdaRho( Cg[i+1], kappa, thcond )
+            kw = 0.5*lambdaRho( Cg[i], kappa, thcond ) + 0.5*lambdaRho( Cg[i-1], kappa, thcond )
+            
 
         
             # First/second order coefficients
 
-            A[i,i-1] = lm
+            A[i,i-1] = -kw
             
-            A[i,i] = -lm - lp
+            A[i,i] = ke + kw
             
-            A[i,i+1] = lp
+            A[i,i+1] = -ke
+
 
 
 
             
         # Last gas element
         
-        if (i == nn-1):
+        elif (i == nn-1):
 
             A[i,i] = 1.
 
