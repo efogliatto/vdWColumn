@@ -44,7 +44,7 @@ def scalarProfile( folderName, fieldName, step = 3, offset = 0, time = 'latest' 
 
     else:
 
-        fname = fname + '/' + time + '/' + fieldName
+        fname = fname + time + '/' + fieldName
 
 
     

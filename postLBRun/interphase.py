@@ -2,8 +2,6 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-import glob
-
 from .derivatives import derivatives
 
 from .fwhm import fwhm
