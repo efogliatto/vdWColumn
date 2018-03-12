@@ -8,9 +8,9 @@ def latentHeat( T, a, b, R = 1 ):
     
     cl, cg = interphaseDensities( T / Tc )
 
-    rl = 3 * b * cl
+    rl = cl / (3 * b)
 
-    rg = 3 * b * cg
+    rg = cg / (3 * b)
 
 
     hl = (3./2. + 1./(1. - b*rl)) * R * T - 2 * a * rl
