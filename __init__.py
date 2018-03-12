@@ -21,3 +21,5 @@ from .rhoFixedTr import rhoFixedTr
 from .rhoNonUniformLambda import rhoNonUniformLambda
 
 from .updateTemperature import updateTemperature
+
+from .latentHeat import latentHeat
