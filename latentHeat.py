@@ -17,5 +17,6 @@ def latentHeat( T, a, b, R = 1 ):
 
     hg = (3./2. + 1./(1. - b*rg)) * R * T - 2 * a * rg
 
+    
 
     return hl, hg
