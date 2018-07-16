@@ -50,7 +50,8 @@ def scalarProfile( folderName, fieldName, step = 3, offset = 0, time = 'latest' 
     
     
 
-    fileField = np.loadtxt( fname, unpack = True)[1:]
+    # fileField = np.loadtxt( fname, unpack = True)[1:]
+    fileField = np.loadtxt( fname, unpack = True)
     
 
 
